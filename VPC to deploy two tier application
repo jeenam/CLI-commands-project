@@ -1,0 +1,295 @@
+Project1 CLI Commands
+
+Create VPC
+aws --profile "eenelsa@ahoo.com" --region us-east-1 ec2 create-vpc --cidr-block 16.0.0.0/26 --instance-tenancy default
+Create Tag
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-tags --resources vpc-f0c3bd94 –-tags Key=Name,Value=jeenavpccli
+
+Create Subnet - Public Subnet1
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-subnet --vpc-id vpc-f0c3bd94 --cidr-block 16.0.0.0/28 --availability-zone us-east-1a
+
+Output:
+{
+    "Subnet": {
+        "VpcId": "vpc-f0c3bd94",
+        "CidrBlock": "16.0.0.0/28",
+        "State": "pending",
+        "AvailabilityZone": "us-east-1a",
+        "SubnetId": "subnet-29aa6b71",
+        "AvailableIpAddressCount": 11
+    }
+}
+
+Create Tag
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-tags --resources subnet-29aa6b71  --tags Key=Name,Value=JeenaPublicsubnet-1
+
+
+Create Subnet -Public Subnet2
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-subnet --vpc-id vpc-f0c3bd94 --cidr-block 16.0.0.16/28 --availability-zone us-east-1c 
+
+Output:
+{
+    "Subnet": {
+        "VpcId": "vpc-f0c3bd94",
+        "CidrBlock": "16.0.0.16/28",
+        "State": "pending",
+        "AvailabilityZone": "us-east-1c",
+        "SubnetId": "subnet-b342b099",
+        "AvailableIpAddressCount": 11
+    }
+}
+
+Create Tag
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-tags --resources subnet-b342b099  --tags Key=Name,Value=JeenaPublicsubnet-2
+
+
+
+Private Subnet1
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-subnet --vpc-id vpc-f0c3bd94 --cidr-block 16.0.0.32/28 --availability-zone us-east-1a
+Output:
+{
+    "Subnet": {
+        "VpcId": "vpc-f0c3bd94",
+        "CidrBlock": "16.0.0.32/28",
+        "State": "pending",
+        "AvailabilityZone": "us-east-1a",
+        "SubnetId": "subnet-30af6e68",
+        "AvailableIpAddressCount": 11
+    }
+
+
+Create Tag
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-tags --resources subnet-30af6e68  --tags Key=Name,Value=JeenaPrivatesubnet-1
+
+
+
+Private Subnet2
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-subnet --vpc-id vpc-f0c3bd94 --cidr-block 16.0.0.48/28 --availability-zone us-east-1c
+Output
+{
+    "Subnet": {
+        "VpcId": "vpc-f0c3bd94",
+        "CidrBlock": "16.0.0.48/28",
+        "State": "pending",
+        "AvailabilityZone": "us-east-1c",
+        "SubnetId": "subnet-8c44b6a6",
+        "AvailableIpAddressCount": 11
+    }
+}
+Create Tag
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-tags --resources subnet-8c44b6a6  --tags Key=Name,Value=JeenaPrivatesubnet-2
+
+
+
+
+Internet Gateway
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-internet-gateway
+{
+    "InternetGateway": {
+        "Tags": [],
+        "InternetGatewayId": "igw-024b8b66",
+        "Attachments": []
+    }}
+
+Attach IG to VPC
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 attach-internet-gateway --internet-gateway-id igw-024b8b66 --vpc-id vpc-f0c3bd94
+
+Create Tag
+D:\Users\jeenelsa>aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 creat
+e-tags --resources igw-024b8b66 --tags Key=Name,Value=Jeena-IG
+
+
+
+
+Security Group
+Public SG
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-security-group --group-name Jeena-SG-Public --description "Security Group for Public Subnet" --vpc-id vpc-f0c3bd94
+Output:
+{
+    "GroupId": "sg-67a7e31e"
+}
+
+Create Tags
+aws --profile "eenelsa@ahoo.com" --region us-east-1 ec2 create-tags --resources sg-67a7e31e --tags Key=Name,Value=Jeena-SG-Public
+
+Private SG
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-security-group --group-name Jeena-SG-Private --description "Security Group for Private Subnet" --vpc-id vpc-f0c3bd94
+Output:
+{
+    "GroupId": "sg-a7a9edde"
+}
+
+Create Tags
+aws --profile "eenelsa@ahoo.com" --region us-east-1 ec2 create-tags --resources sg- a7a9edde --tags Key=Name,Value=Jeena-SG-Private
+
+
+
+Configure Public Security Group Inbound Rules
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-ingress --group-id sg-67a7e31e --protocol tcp --port 22 --cidr 0.0.0.0/0
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-ingress --group-id sg-67a7e31e --protocol tcp --port 3389 --cidr 0.0.0.0/0
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-ingress --group-id sg-67a7e31e --protocol tcp --port 443 --cidr 0.0.0.0/0
+
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-ingress --group-id sg-67a7e31e --protocol tcp --port 80 --cidr 0.0.0.0/0
+
+Public Security Group Outbound Rules
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-egress --group-id sg-67a7e31e --protocol tcp --port 80 --cidr 0.0.0.0/0
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-egress --group-id sg-67a7e31e --protocol tcp --port 443 --cidr 0.0.0.0/0
+
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-egress --group-id sg-67a7e31e --protocol tcp --port 1433 --source-group sg-a7a9edde
+
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-egress --group-id sg-67a7e31e --protocol tcp --port 3306 --source-group sg-a7a9edde
+
+
+
+Private Security Group Inbound Rules
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-ingress --group-id sg-a7a9edde --protocol tcp --port 3306 --source-group sg-67a7e31e
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-ingress --group-id sg-a7a9edde --protocol tcp --port 1433 --source-group sg-67a7e31e
+
+
+Private Security Group Outbound Rules
+
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-egress --group-id sg-a7a9edde --protocol tcp --port 443 --cidr 0.0.0.0/0
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 authorize-security-group-egress --group-id sg-a7a9edde --protocol tcp --port 80 --cidr 0.0.0.0/0
+
+Create Route Table
+aws --profile "eenelsa@ahoo.com" --region us-east-1 ec2 create-route-table  --vpc-id vpc-f0c3bd94
+Output
+{
+    "RouteTable": {
+        "Associations": [],
+        "RouteTableId": "rtb-89fdc4ed",
+        "VpcId": "vpc-f0c3bd94",
+        "PropagatingVgws": [],
+        "Tags": [],
+        "Routes": [
+            {
+                "GatewayId": "local",
+                "DestinationCidrBlock": "16.0.0.0/26",
+                "State": "active",
+                "Origin": "CreateRouteTable"
+            }        ]    }}
+Create Tag
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-tags --resources rtb-89fdc4ed   --tags Key=Name,Value=Jeena-Custom-RT-Pri
+
+
+Associate Custom Route Table to Private Subnets
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 associate-route-table --route-table-id rtb-89fdc4ed --subnet-id subnet-30af6e68
+Output:
+{
+    "AssociationId": "rtbassoc-6c3c830b"
+}
+
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 associate-route-table --route-table-id rtb-89fdc4ed --subnet-id subnet-8c44b6a6
+Output:
+{
+    "AssociationId": "rtbassoc-e73d8280"
+}
+
+
+Find the Default (Main) Route Table
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 describe-route-tables --filters "Name=vpc-id,Values=vpc-f0c3bd94"
+{    "RouteTables": [
+        {            "Associations": [                {
+                    "RouteTableAssociationId": "rtbassoc-88c478ef",
+                    "Main": true,
+                    "RouteTableId": "rtb-2d043a49"
+                }            ],
+
+Configure Main Route Table
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-route --route-table-id rtb-2d043a49 --destination-cidr-block 0.0.0.0/0 --gateway-id igw-024b8b66
+Output:
+{
+    "Return": true
+}
+
+Configure Custom Route Table 
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-route --route-table-id rtb-89fdc4ed --destination-cidr-block 0.0.0.0/0 --instance-id i-310b4982
+{
+    "Return": true
+}
+
+
+
+Create NAT instance
+
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 run-instances --image-id ami-184dc970 --key-name jeenanatk --instance-type t2.micro --subnet-id subnet-29aa6b71 --security-group-ids sg-67a7e31e
+
+Create Tag
+
+D:\Users\jeenelsa>aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 creat
+e-tags --resources i-310b4982 --tags Key=Name,Value=Jeena-NAT-Public
+
+Allocate elastic IP Address
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 allocate-address --domain vpc
+Output:
+{
+    "PublicIp": "52.70.66.134",
+    "Domain": "vpc",
+    "AllocationId": "eipalloc-f243dd96"
+}
+
+
+
+Associate Address to NAT Instance
+
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 associate-address --instance-id i-310b4982 --allocation-id eipalloc-f243dd96
+{
+    "AssociationId": "eipassoc-95a44bed"
+}
+
+
+Launch Bastion Host
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 run-instances --image-id ami-184dc970 --key-name jeenanatk --instance-type t2.micro --subnet-id subnet-29aa6b71 --security-group-ids sg-67a7e31e
+Create Tag
+aws --profile "eenelsa@yahoo.com" --region us-east-1 ec2 create-tags --resources i-a54b0916 --tags Key=Name,Value=Jeena-Bastion-Host
+
+Create DB Subnet Group
+aws --profile "eenelsa@yahoo.com" --region us-east-1 rds create-db-subnet-group --db-subnet-group-name jeena-db-subnet --db-subnet-group-description "Database subnet group" --subnet-ids subnet-30af6e68 subnet-8c44b6a6
+Output
+{
+    "DBSubnetGroup": {
+        "Subnets": [
+            {
+                "SubnetStatus": "Active",
+                "SubnetIdentifier": "subnet-8c44b6a6",
+                "SubnetAvailabilityZone": {
+                    "Name": "us-east-1c"
+                }
+            },
+            {
+                "SubnetStatus": "Active",
+                "SubnetIdentifier": "subnet-30af6e68",
+                "SubnetAvailabilityZone": {
+                    "Name": "us-east-1a"
+                }
+            }
+        ],
+        "DBSubnetGroupName": "jeena-db-subnet",
+        "VpcId": "vpc-f0c3bd94",
+        "DBSubnetGroupDescription": "Database subnet group",
+        "SubnetGroupStatus": "Complete"
+    }
+}
+
+
+Create DB Security Group
+aws --profile "eenelsa@yahoo.com" --region us-east-1 rds create-db-security-group --db-security-group-name jeena-db-secgp --db-security-group-description "db security group"
+{
+    "DBSecurityGroup": {
+        "VpcId": "vpc-2f22404b",
+        "DBSecurityGroupDescription": "db security group",
+        "IPRanges": [],
+        "OwnerId": "515651501414",
+        "EC2SecurityGroups": [],
+        "DBSecurityGroupName": "jeena-db-secgp"
+
+
+
+Authorize DB Security Group Ingress
+aws --profile "eenelsa@yahoo.com" --region us-east-1 rds authorize-db-security-group-ingress --db-security-group-name jeena-db-secgp --ec2-security-group-name Jeena-DBSG-Private --ec2-security-group-id sg-a7a9edde
+A client error (InvalidParameterValue) occurred when calling the AuthorizeDBSecurityGroupIngress operation: VPC DB Security Groups cannot be modified with thisAPI version.  Please use an API version between 2012-01-15 and 2012-10-31 to modify this group.
+
+Launch MySQL DB into private DB Subnet group
+aws --profile "eenelsa@yahoo.com" --region us-east-1 rds create-db-instance --engine mysql --db-instance-identifier jeena-db-vpc --allocated-storage 5 --db-instance-class db.t2.micro --master-username jeenadbuser --master-user-password start123 --db-subnet-group-name jeena-db-subnet –vpc-security-group-ids sg-a7a9edde --no-multi-az
+
+
