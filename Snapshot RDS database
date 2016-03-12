@@ -1,0 +1,178 @@
+
+1: Create  MySQL RDS Database
+
+aws --profile "eenelsa@yahoo.com" --region us-east-1 rds create-db-instance --engine mysql --db-instance-identifier jeenardsdb --allocated-storage 5 --db-instance-class db.t2.micro --master-username jeenardsdb --master-user-password start123 --db-subnet-group-name jeena-db-subnet –vpc-security-group-ids sg-a7a9edde --no-multi-az --db-name jeenards
+
+
+2. Connected the Database through SSH into the bastion host 
+login as: ec2-user
+Authenticating with public key "imported-openssh-key"
+Last login: Tue Jan 26 18:16:51 2016 from ec2-52-71-21-204.compute-1.amazonaws.com
+
+       __|  __|_  )
+       _|  (     /   Amazon Linux AMI
+      ___|\___|___|
+
+https://aws.amazon.com/amazon-linux-ami/2014.09-release-notes/
+[ec2-user@ip-16-0-0-11 ~]$ sudo yum -y install mysql
+[ec2-user@ip-16-0-0-11 ~]$ mysql -h jeenardsdb.clwywqb8ttuk.us-east-1.rds.amazonaws.com -u jeenardsdb -p jeenards                                              
+ Enter password:
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 313
+Server version: 5.6.23-log MySQL Community Server (GPL)
+Copyright (c) 2000, 2015, Oracle and/or its affiliates. All rights reserved.
+Oracle is a registered trademark of Oracle Corporation and/or itsaffiliates. Other names may be trademarks of their respectiveowners.
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+
+3. Create a Table and add few records
+mysql> CREATE TABLE Class ( Id INT, Name VARCHAR(20) );
+Query OK, 0 rows affected (0.02 sec)
+mysql> DESC Class;
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| Id    | int(11)     | YES  |     | NULL    |       |
+| Name  | varchar(20) | YES  |     | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+
+
+
+4. Take SNAPSHOT OF THE DATABASE
+aws --profile "eenelsa@ahoo.com" --region us-east-1 rds create-db-snapshot --db-snapshot-identifier jeenardssnap --db-instance-identifier jeenardsdb
+
+Output:
+{
+    "DBSnapshot": {
+        "Engine": "mysql",
+        "Status": "creating",
+        "AvailabilityZone": "us-east-1c",
+        "PercentProgress": 0,
+        "MasterUsername": "jeenardsdb",
+        "Encrypted": false,
+        "LicenseModel": "general-public-license",
+        "StorageType": "gp2",
+        "VpcId": "vpc-f0c3bd94",
+        "DBSnapshotIdentifier": "jeenardssnap",
+        "InstanceCreateTime": "2016-01-26T21:57:09.978Z",
+        "OptionGroupName": "default:mysql-5-6",
+        "AllocatedStorage": 5,
+        "EngineVersion": "5.6.23",
+        "SnapshotType": "manual",
+        "Port": 3306,
+        "DBInstanceIdentifier": "jeenardsdb"
+    }
+}
+
+
+
+5: CREATE ANOTHER DATABASE FROM THE ABOVE SNAPSHOT
+aws --profile "eenelsa@ahoo.com" --region us-east-1 rds restore-db-instance-from-db-snapshot --db-instance-identifier jeenardssnapdb --db-snapshot-identifier jeenardssnap --db-instance-class db.t2.micro --port 3306 --db-subnet-group-name jeena-db-subnet --vpc-security-group-ids sg-a7a9edde --no-multi-az --engine mysql
+
+OUTPUT:
+{
+    "DBInstance": {
+        "PubliclyAccessible": false,
+        "MasterUsername": "jeenardsdb",
+        "MonitoringInterval": 0,
+        "LicenseModel": "general-public-license",
+        "VpcSecurityGroups": [
+            {
+                "Status": "active",
+                "VpcSecurityGroupId": "sg-a7a9edde"
+            }
+        ],
+        "CopyTagsToSnapshot": false,
+        "OptionGroupMemberships": [
+            {
+                "Status": "pending-apply",
+                "OptionGroupName": "default:mysql-5-6"
+            }
+        ],
+        "PendingModifiedValues": {},
+        "Engine": "mysql",
+        "MultiAZ": false,
+        "DBSecurityGroups": [],
+        "DBParameterGroups": [
+            {
+                "DBParameterGroupName": "default.mysql5.6",
+                "ParameterApplyStatus": "in-sync"
+            }
+        ],
+        "AutoMinorVersionUpgrade": true,
+        "PreferredBackupWindow": "06:59-07:29",
+        "DBSubnetGroup": {
+            "Subnets": [
+                {
+                    "SubnetStatus": "Active",
+                    "SubnetIdentifier": "subnet-8c44b6a6",
+                    "SubnetAvailabilityZone": {
+                        "Name": "us-east-1c"
+                    }
+                },
+                {
+                    "SubnetStatus": "Active",
+                    "SubnetIdentifier": "subnet-30af6e68",
+                    "SubnetAvailabilityZone": {
+                        "Name": "us-east-1a"
+                    }
+                }
+            ],
+            "DBSubnetGroupName": "jeena-db-subnet",
+            "VpcId": "vpc-f0c3bd94",
+            "DBSubnetGroupDescription": "Database subnet group",
+            "SubnetGroupStatus": "Complete"
+        },
+        "ReadReplicaDBInstanceIdentifiers": [],
+        "AllocatedStorage": 5,
+        "BackupRetentionPeriod": 7,
+        "DBName": "jeenards",
+        "PreferredMaintenanceWindow": "sat:04:35-sat:05:05",
+        "DBInstanceStatus": "creating",
+        "EngineVersion": "5.6.23",
+        "StorageType": "gp2",
+        "DbiResourceId": "db-IVIISEKBD32SSV2NKE2RSPSOTA",
+        "CACertificateIdentifier": "rds-ca-2015",
+        "StorageEncrypted": false,
+        "DBInstanceClass": "db.t2.micro",
+        "DbInstancePort": 0,
+        "DBInstanceIdentifier": "jeenardssnapdb"
+    }
+}
+
+
+
+6. Connect to the new RDS Database
+login as: ec2-user
+Authenticating with public key "imported-openssh-key"
+
+[root@ip-16-0-0-20 ec2-user]# mysql -h jeenardssnapdb.clwywqb8ttuk.us-east-1.rds.amazonaws.com -u jeenardsdb -p jeenards
+Enter password:
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 29Server version: 5.6.23-log MySQL Community Server (GPL)
+Copyright (c) 2000, 2015, Oracle and/or its affiliates. All rights reserved.
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> DESC Class;
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| Id    | int(11)     | YES  |     | NULL    |       |
+| Name  | varchar(20) | YES  |     | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+
+
+
+
+
+
